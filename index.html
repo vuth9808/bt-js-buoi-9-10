@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhân Viên</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<h1>Quản Lý Nhân Viên</h1>
+
+<!-- Form nhập thông tin nhân viên -->
+<form id="employee-form">
+    <label for="account">Tài khoản:</label>
+    <input type="text" id="account" name="account" required>
+
+    <label for="name">Họ tên:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Mật khẩu:</label>
+    <input type="password" id="password" name="password" required>
+
+    <label for="position">Chức vụ:</label>
+    <select id="position" name="position" required>
+        <option value="Giám đốc">Giám đốc</option>
+        <option value="Trưởng phòng">Trưởng phòng</option>
+        <option value="Nhân viên">Nhân viên</option>
+    </select>
+
+    <label for="salary">Lương cơ bản:</label>
+    <input type="number" id="salary" name="salary" required>
+
+    <label for="hours">Giờ làm trong tháng:</label>
+    <input type="number" id="hours" name="hours" required>
+
+    <button type="submit" id="submit-btn">Thêm nhân viên</button>
+</form>
+
+
+<!-- Bảng danh sách nhân viên -->
+<h3>Danh Sách Nhân Viên</h3>
+<table id="employee-table">
+    <thead>
+        <tr>
+            <th>Tài khoản</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Lương cơ bản</th>
+            <th>Chức vụ</th>
+            <th>Giờ làm</th>
+            <th>Tổng lương</th>
+            <th>Loại nhân viên</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Tìm kiếm nhân viên theo loại -->
+<h3>Tìm Nhân Viên Theo Loại</h3>
+<select id="search-type" style="font-size: larger;">
+    <option value="">Chọn loại nhân viên</option>
+    <option value="Xuất sắc">Xuất sắc</option>
+    <option value="Giỏi">Giỏi</option>
+    <option value="Khá">Khá</option>
+    <option value="Trung bình">Trung bình</option>
+</select>
+<button onclick="filterEmployees()" style="font-size: larger;">Tìm</button>
+
+<script src="./main.js"></script>
+</body>
+</html>
