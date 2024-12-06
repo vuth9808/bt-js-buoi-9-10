@@ -1,158 +1,163 @@
-let employees = []; // Mảng nhân viên lưu trữ tất cả nhân viên
-let currentEditIndex = -1; // Biến lưu chỉ số nhân viên đang sửa
+import Validation from "./validation";
+const validation = new Validation();
 
-// Hàm tính tổng lương
-function calculateTotalSalary(position, basicSalary) {
-    switch (position) {
-        case 'Giám đốc':
-            return basicSalary * 3;
-        case 'Trưởng phòng':
-            return basicSalary * 2;
-        default:
-            return basicSalary;
-    }
-}
 
-// Hàm xếp loại nhân viên
-function classifyEmployee(hours) {
-    if (hours >= 192) return 'Xuất sắc';
-    if (hours >= 176) return 'Giỏi';
-    if (hours >= 160) return 'Khá';
-    return 'Trung bình';
-}
+// Lấy phần tử HTML theo ID
+export const getEleId = (id) => document.getElementById(id);
 
-// Hàm thêm nhân viên
-function addEmployee(event) {
-    event.preventDefault();
+// Đối tượng nhân viên
+class Employee {
+  constructor(taiKhoan, hoTen, email, matKhau, ngayLam, luongCB, chucVu, gioLam) {
+    this.taiKhoan = taiKhoan;
+    this.hoTen = hoTen;
+    this.email = email;
+    this.matKhau = matKhau;
+    this.ngayLam = ngayLam;
+    this.luongCB = luongCB;
+    this.chucVu = chucVu;
+    this.gioLam = gioLam;
+    this.tongLuong = 0;
+    this.loaiNhanVien = "";
+  }
 
-    // Lấy giá trị từ form
-    const account = document.getElementById("account").value;
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const position = document.getElementById("position").value;
-    const salary = parseInt(document.getElementById("salary").value);
-    const hours = parseInt(document.getElementById("hours").value);
-    const type = classifyEmployee(hours);
-    const totalSalary = calculateTotalSalary(position, salary);
-
-    // Kiểm tra hợp lệ
-    if (!validateForm(account, name, email, password, salary, hours)) {
-        alert("Dữ liệu không hợp lệ!");
-        return;
-    }
-
-    // Tạo đối tượng nhân viên
-    const employee = {
-        account,
-        name,
-        email,
-        password,
-        position,
-        salary,
-        hours,
-        totalSalary,
-        type
-    };
-
-    if (currentEditIndex === -1) {
-        // Thêm mới nhân viên
-        employees.push(employee);
+  // Phương thức tính tổng lương
+  tinhTongLuong() {
+    if (this.chucVu === "Giám đốc") {
+      this.tongLuong = this.luongCB * 3;
+    } else if (this.chucVu === "Trưởng phòng") {
+      this.tongLuong = this.luongCB * 2;
     } else {
-        // Cập nhật nhân viên
-        employees[currentEditIndex] = employee;
-        currentEditIndex = -1; // Reset lại sau khi cập nhật
+      this.tongLuong = this.luongCB;
     }
+  }
 
-    // Hiển thị bảng nhân viên
-    renderEmployeeTable();
+  // Phương thức xếp loại nhân viên
+  xepLoai() {
+    if (this.gioLam >= 192) {
+      this.loaiNhanVien = "Xuất sắc";
+    } else if (this.gioLam >= 176) {
+      this.loaiNhanVien = "Giỏi";
+    } else if (this.gioLam >= 160) {
+      this.loaiNhanVien = "Khá";
+    } else {
+      this.loaiNhanVien = "Trung bình";
+    }
+  }
+}
+
+// Xử lý form và tạo đối tượng nhân viên
+const getInfoEmployee = (isAdd) => {
+  const taiKhoan = getEleId("tknv").value;
+  const hoTen = getEleId("name").value;
+  const email = getEleId("email").value;
+  const matKhau = getEleId("password").value;
+  const ngayLam = getEleId("datepicker").value;
+  const luongCB = parseFloat(getEleId("luongCB").value);
+  const chucVu = getEleId("chucvu").value;
+  const gioLam = parseInt(getEleId("gioLam").value);
+
+  let isValid = true;
+
+  // Kiểm tra tính hợp lệ của dữ liệu nhập vào
+  isValid &= validation.checkEmpty(taiKhoan, "tbTKNV", "Tài khoản không được để trống!") &&
+    validation.checkLength(taiKhoan, 4, 6, "tbTKNV", "Tài khoản phải từ 4 đến 6 ký tự!");
+
+  isValid &= validation.checkCharacterString(hoTen, "tbTen", "Tên nhân viên phải là chữ!") &&
+    validation.checkEmpty(hoTen, "tbTen", "Tên nhân viên không được để trống!");
+
+  isValid &= validation.checkEmail(email, "tbEmail", "Email không hợp lệ!") &&
+    validation.checkEmpty(email, "tbEmail", "Email không được để trống!");
+
+  isValid &= validation.checkPassword(matKhau, "tbMatKhau", "Mật khẩu phải từ 6-10 ký tự, có ít nhất 1 ký tự số, 1 ký tự in hoa và 1 ký tự đặc biệt!") &&
+    validation.checkEmpty(matKhau, "tbMatKhau", "Mật khẩu không được để trống!");
+
+  isValid &= validation.checkEmpty(ngayLam, "tbNgay", "Ngày làm không được để trống!") &&
+    validation.checkDate(ngayLam, "tbNgay", "Ngày làm phải đúng định dạng mm/dd/yyyy!");
+
+  isValid &= validation.checkEmpty(luongCB, "tbLuongCB", "Lương cơ bản không được để trống!") &&
+    validation.checkRange(luongCB, 1000000, 20000000, "tbLuongCB", "Lương cơ bản phải từ 1 triệu đến 20 triệu!");
+
+  isValid &= validation.checkSelect("chucvu", "tbChucVu", "Chức vụ không hợp lệ!");
+
+  isValid &= validation.checkRange(gioLam, 80, 200, "tbGiolam", "Giờ làm phải từ 80 đến 200 giờ!");
+
+  if (!isValid) return null;
+
+  // Tạo đối tượng nhân viên
+  const employee = new Employee(taiKhoan, hoTen, email, matKhau, ngayLam, luongCB, chucVu, gioLam);
+
+  // Tính tổng lương và xếp loại
+  employee.tinhTongLuong();
+  employee.xepLoai();
+
+  return employee;
+};
+
+// Hàm render danh sách nhân viên
+const renderEmployeeList = (data) => {
+  let content = "";
+  for (let i = 0; i < data.length; i++) {
+    const employee = data[i];
+    content += `
+      <tr>
+        <td>${employee.taiKhoan}</td>
+        <td>${employee.hoTen}</td>
+        <td>${employee.email}</td>
+        <td>${employee.ngayLam}</td>
+        <td>${employee.chucVu}</td>
+        <td>${employee.tongLuong}</td>
+        <td>${employee.loaiNhanVien}</td>
+        <td>
+          <button class="btn btn-warning" onclick="editEmployee(${i})">Sửa</button>
+          <button class="btn btn-danger" onclick="deleteEmployee(${i})">Xóa</button>
+        </td>
+      </tr>
+    `;
+  }
+  getEleId("tableDanhSach").innerHTML = content;
+};
+
+// Thêm nhân viên vào danh sách
+const addEmployee = () => {
+  const employee = getInfoEmployee(true);
+  if (employee) {
+    employeeList.push(employee);
+    renderEmployeeList(employeeList);
     resetForm();
-}
+  }
+};
 
-// Hàm hiển thị bảng nhân viên
-function renderEmployeeTable() {
-    const tableBody = document.querySelector("#employee-table tbody");
-    tableBody.innerHTML = "";
+// Cập nhật nhân viên
+const updateEmployee = (index) => {
+  const employee = getInfoEmployee(false);
+  if (employee) {
+    employeeList[index] = employee;
+    renderEmployeeList(employeeList);
+    resetForm();
+  }
+};
 
-    employees.forEach((employee, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${employee.account}</td>
-            <td>${employee.name}</td>
-            <td>${employee.email}</td>
-            <td>${employee.salary}</td>
-            <td>${employee.position}</td>
-            <td>${employee.hours}</td>
-            <td>${employee.totalSalary}</td>
-            <td>${employee.type}</td>
-            <td>
-                <button onclick="editEmployee(${index})">Sửa</button>
-                <button onclick="deleteEmployee(${index})">Xóa</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
+// Xóa nhân viên
+const deleteEmployee = (index) => {
+  employeeList.splice(index, 1);
+  renderEmployeeList(employeeList);
+};
 
-// Hàm chỉnh sửa nhân viên
-function editEmployee(index) {
-    const employee = employees[index];
-    
-    // Điền dữ liệu vào form
-    document.getElementById("account").value = employee.account;
-    document.getElementById("name").value = employee.name;
-    document.getElementById("email").value = employee.email;
-    document.getElementById("password").value = employee.password;
-    document.getElementById("position").value = employee.position;
-    document.getElementById("salary").value = employee.salary;
-    document.getElementById("hours").value = employee.hours;
-    document.getElementById("type").value = employee.type;
-    
-    // Cập nhật chỉ số nhân viên đang sửa
-    currentEditIndex = index;
+// Reset form
+const resetForm = () => {
+  getEleId("tknv").value = "";
+  getEleId("name").value = "";
+  getEleId("email").value = "";
+  getEleId("password").value = "";
+  getEleId("datepicker").value = "";
+  getEleId("luongCB").value = "";
+  getEleId("chucvu").value = "";
+  getEleId("gioLam").value = "";
+};
 
-    // Thay đổi nút "Thêm nhân viên" thành "Cập nhật"
-    document.getElementById("submit-btn").textContent = "Cập nhật nhân viên";
-}
+// Danh sách nhân viên (dùng mảng để lưu trữ)
+const employeeList = [];
 
-// Hàm xóa nhân viên
-function deleteEmployee(index) {
-    employees.splice(index, 1);
-    renderEmployeeTable();
-}
-
-// Hàm kiểm tra dữ liệu hợp lệ
-function validateForm(account, name, email, password, salary, hours) {
-    const accountRegex = /^[0-9]{4,6}$/;
-    const nameRegex = /^[a-zA-Z\s]+$/;
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    const passwordRegex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[\W_]).{6,10}$/;
-
-    if (!accountRegex.test(account)) return false;
-    if (!nameRegex.test(name)) return false;
-    if (!emailRegex.test(email)) return false;
-    if (!passwordRegex.test(password)) return false;
-    if (salary < 1000000 || salary > 20000000) return false;
-    if (hours < 80 || hours > 200) return false;
-
-    return true;
-}
-
-// Hàm lọc nhân viên theo loại
-function filterEmployees() {
-    const searchType = document.getElementById("search-type").value;
-
-    const filteredEmployees = employees.filter(employee => {
-        return !searchType || employee.type === searchType;
-    });
-
-    renderEmployeeTable(filteredEmployees);
-}
-
-// Hàm làm mới form
-function resetForm() {
-    document.getElementById("employee-form").reset();
-    document.getElementById("submit-btn").textContent = "Thêm nhân viên";
-}
-
-document.getElementById("employee-form").addEventListener("submit", addEmployee);
+// Khởi tạo sự kiện cho các nút
+getEleId("btnThemNV").addEventListener("click", addEmployee);
+getEleId("btnCapNhat").addEventListener("click", updateEmployee);
